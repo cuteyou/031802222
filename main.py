@@ -1,6 +1,6 @@
 # -*- coding: utf-8 -*-
 
-import jieba,sys,os
+import jieba,sys,os,numpy
 from gensim import corpora, models, similarities
 from collections import defaultdict
 
@@ -154,3 +154,4 @@ idx = similarities.SparseMatrixSimilarity(tfidf[new_corpor], num_features=featur
 sims = idx[tfidf[new_vec]]
 for i in sims:
     print("%.2f"%i)
+numpy.savetxt('D:/results/ans.txt',sims)
