@@ -153,5 +153,8 @@ featurenum = len(dic1.token2id.keys())
 idx = similarities.SparseMatrixSimilarity(tfidf[new_corpor], num_features=featurenum)
 sims = idx[tfidf[new_vec]]
 for i in sims:
+    i=1-i
     print("%.2f"%i)
-numpy.savetxt('D:/results/ans.txt',sims)
+##f100=D:/results/ans.txt
+    f100 = sys.argv[11]
+numpy.savetxt(f100,sims)
