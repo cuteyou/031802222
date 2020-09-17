@@ -1,26 +1,23 @@
-# -*- coding: utf-8 -*-
 
-import jieba,sys,os,numpy
+import jieba,sys,os,numpy,math,re
 from gensim import corpora, models, similarities
 from collections import defaultdict
 
 # 定义文件路径
-
 f1 = sys.argv[1]
 f2 = sys.argv[2]
-f3 = sys.argv[3]
-f4 = sys.argv[4]
-f5 = sys.argv[5]
-f6 = sys.argv[6]
-f7 = sys.argv[7]
-f8 = sys.argv[8]
-f9 = sys.argv[9]
-##cmd： C:\Users\林逸丽\AppData\Local\Programs\Python\Python37>python main2.py D:\sim_0.8\orig_0.8_add.txt D:\sim_0.8\orig_0.8_del.txt D:\sim_0.8\orig_0.8_dis_1.txt D:\sim_0.8\orig_0.8_dis_3.txt D:\sim_0.8\orig_0.8_dis_7.txt D:\sim_0.8\orig_0.8_dis_10.txt D:\sim_0.8\orig_0.8_dis_15.txt D:\sim_0.8\orig_0.8_mix.txt D:\sim_0.8\orig_0.8_rep.txt D:\sim_0.8\orig.txt
-##否则，f1 = sys.argv[1]
-##IndexError: list index out of range
+##f3 = sys.argv[3]
+##f4 = sys.argv[4]
+##f5 = sys.argv[5]
+##f6 = sys.argv[6]
+##f7 = sys.argv[7]
+##f8 = sys.argv[8]
+##f9 = sys.argv[9]
 
 
 ##f0 = "D:\sim_0.8\orig.txt" (对比文件
+f0 = sys.argv[3]
+##bushi10
 ##f1 = "D:\sim_0.8\orig_0.8_del.txt"
 ##f2 = "D:\sim_0.8\orig_0.8_add.txt"
 ##f1 = "D:\sim_0.8\orig_0.8_add.txt"
@@ -34,127 +31,124 @@ f9 = sys.argv[9]
 ##f9 = "D:\sim_0.8\orig_0.8_rep.txt"
 
 
+file0 = open(f0, encoding='utf-8').read()
+
 
 # 读取文件内容
-c1 = open(f1, encoding='utf-8').read()
-c2 = open(f2, encoding='utf-8').read()
-c3 = open(f3,encoding="utf-8").read()
-c4 = open(f4,encoding="utf-8").read()
-c5 = open(f5,encoding="utf-8").read()
-c6 = open(f6,encoding="utf-8").read()
-c7 = open(f7,encoding="utf-8").read()
-c8 = open(f8,encoding="utf-8").read()
-c9 = open(f9,encoding="utf-8").read()
-# jieba 进行分词
-data1 = jieba.cut(c1)
-data2 = jieba.cut(c2)
-data3 = jieba.cut(c3)
-data4 = jieba.cut(c4)
-data5 = jieba.cut(c5)
-data6 = jieba.cut(c6)
-data7 = jieba.cut(c7)
-data8 = jieba.cut(c8)
-data9 = jieba.cut(c9)
+s1 = open(f1, encoding='utf-8').read()
+s2 = open(f2, encoding='utf-8').read()
+##s3 = open(f3,encoding="utf-8").read()
+##s4 = open(f4,encoding="utf-8").read()
+##s5 = open(f5,encoding="utf-8").read()
+##s6 = open(f6,encoding="utf-8").read()
+##s7 = open(f7,encoding="utf-8").read()
+##s8 = open(f8,encoding="utf-8").read()
+##s9 = open(f9,encoding="utf-8").read()
 
-data11 = ""
-# 获取分词内容
-for i in data1:
-    data11 += i + " "
-    
-data21 = ""
-# 获取分词内容
-for i in data2:
-    data21 += i + " "
+#利用jieba分词与停用词表，将词分好并保存到向量中
+stopwords=[]
+fstop=open('D:/results/stopwords_file.txt','r',encoding='utf-8-sig')
+for eachWord in fstop:
+    eachWord = re.sub("\n", "", eachWord)
+    stopwords.append(eachWord)
+fstop.close()
+s1_cut = [i for i in jieba.cut(s1, cut_all=True) if (i not in stopwords) and i!='']
+s2_cut = [i for i in jieba.cut(s2, cut_all=True) if (i not in stopwords) and i!='']
+##s3_cut = [i for i in jieba.cut(s3, cut_all=True) if (i not in stopwords) and i!='']
+##s4_cut = [i for i in jieba.cut(s4, cut_all=True) if (i not in stopwords) and i!='']
+##s5_cut = [i for i in jieba.cut(s5, cut_all=True) if (i not in stopwords) and i!='']
+##s6_cut = [i for i in jieba.cut(s6, cut_all=True) if (i not in stopwords) and i!='']
+##s7_cut = [i for i in jieba.cut(s7, cut_all=True) if (i not in stopwords) and i!='']
+##s8_cut = [i for i in jieba.cut(s8, cut_all=True) if (i not in stopwords) and i!='']
+##s9_cut = [i for i in jieba.cut(s9, cut_all=True) if (i not in stopwords) and i!='']
+word_set = set(s1_cut).union(set(s2_cut))
+##word_set = set(word_set).union(set(s3_cut))
+##word_set = set(word_set).union(set(s4_cut))
+##word_set = set(word_set).union(set(s5_cut))
+##word_set = set(word_set).union(set(s6_cut))
+##word_set = set(word_set).union(set(s7_cut))
+##word_set = set(word_set).union(set(s8_cut))
+##word_set = set(word_set).union(set(s9_cut))
 
-data31 = ""
-# 获取分词内容
-for i in data3:
-    data31 += i + " "
 
-data41 = ""
-# 获取分词内容
-for i in data4:
-    data41 += i + " "
+#用字典保存两篇文章中出现的所有词并编上号
+word_dict = dict()
+i = 0
+for word in word_set:
+    word_dict[word] = i
+    i += 1
 
-data51 = ""
-# 获取分词内容
-for i in data5:
-    data51 += i + " "
 
-data61 = ""
-# 获取分词内容
-for i in data6:
-    data61 += i + " "
+#根据词袋模型统计词在每篇文档中出现的次数，形成向量
+s1_cut_code = [0]*len(word_dict)
 
-data71 = ""
-# 获取分词内容
-for i in data7:
-    data71 += i + " "
+for word in s1_cut:
+    s1_cut_code[word_dict[word]]+=1
 
-data81 = ""
-# 获取分词内容
-for i in data8:
-    data81 += i + " "
+s2_cut_code = [0]*len(word_dict)
+for word in s2_cut:
+    s2_cut_code[word_dict[word]]+=1
+##
+##s3_cut_code = [0]*len(word_dict)
+##
+##for word in s1_cut:
+##    s3_cut_code[word_dict[word]]+=1
+##
+##s4_cut_code = [0]*len(word_dict)
+##for word in s2_cut:
+##    s4_cut_code[word_dict[word]]+=1
+##
+##s5_cut_code = [0]*len(word_dict)
+##
+##for word in s1_cut:
+##    s5_cut_code[word_dict[word]]+=1
+##
+##s6_cut_code = [0]*len(word_dict)
+##for word in s2_cut:
+##    s6_cut_code[word_dict[word]]+=1
+##
+##s7_cut_code = [0]*len(word_dict)
+##
+##for word in s1_cut:
+##    s7_cut_code[word_dict[word]]+=1
+##
+##s8_cut_code = [0]*len(word_dict)
+##for word in s2_cut:
+##    s8_cut_code[word_dict[word]]+=1
+##
+##s9_cut_code = [0]*len(word_dict)
+##
+##for word in s1_cut:
+##    s9_cut_code[word_dict[word]]+=1
 
-data91 = ""
-# 获取分词内容
-for i in data9:
-    data91 += i + " "
 
-    
+# 计算余弦相似度
+sum = 0
+sq1 = 0
+sq2 = 0
+##sq3 = 0
+##sq4 = 0
+##sq5 = 0
+##sq6 = 0
+##sq7 = 0
+##sq8 = 0
+##sq9 = 0
+for i in range(len(s1_cut_code)):
+    sum += s1_cut_code[i] * s2_cut_code[i]
+    sq1 += pow(s1_cut_code[i], 2)
+    sq2 += pow(s2_cut_code[i], 2)
 
-doc1 = [data11, data21,data31,data41,data51,data61,data71,data81,data91]
-# print(doc1)
+try:
+    result = round(float(sum) / (math.sqrt(sq1) * math.sqrt(sq2)), 3)
+except ZeroDivisionError:
+    result = 0.0
 
-t1 = [[word for word in doc.split()]
-      for doc in doc1]
-# print(t1)
+result=result*100
+print("\n余弦相似度为：%.2f%%"%result)
+f100 = sys.argv[4]
 
-# # frequence频率
-freq = defaultdict(int)
-for i in t1:
-    for j in i:
-        freq[j] += 1
-# print(freq)
-
-# 限制词频
-t2 = [[token for token in k if freq[j] >= 3]
-      for k in t1]
-##print(t2)
-
-# corpora语料库建立字典
-dic1 = corpora.Dictionary(t2)
-dic1.save("D:/results/aaa.txt")
-
-# 对比文件
-##f0 = "D:\sim_0.8\orig.txt"
-f0 = sys.argv[10]
-
-c0 = open(f0, encoding='utf-8').read()
-# jieba 进行分词
-data0 = jieba.cut(c0)
-data01 = ""
-for i in data0:
-    data01 += i + " "
-new_doc = data01
-##print(new_doc)
-
-# doc2bow把文件变成一个稀疏向量
-new_vec = dic1.doc2bow(new_doc.split())
-# 对字典进行doc2bow处理，得到新语料库
-new_corpor = [dic1.doc2bow(t3) for t3 in t2]
-tfidf = models.TfidfModel(new_corpor)
-
-# 特征数
-featurenum = len(dic1.token2id.keys())
-
-# similarities 相似之处
-# SparseMatrixSimilarity 稀疏矩阵相似度
-idx = similarities.SparseMatrixSimilarity(tfidf[new_corpor], num_features=featurenum)
-sims = idx[tfidf[new_vec]]
-for i in sims:
-    i=1-i
-    print("%.2f"%i)
-##f100=D:/results/ans.txt
-    f100 = sys.argv[11]
-numpy.savetxt(f100,sims)
+##file = open(f100,'w', encoding='UTF-8')
+##result = (str)result
+##file.write(result)
+##file.close()
+##print("文本相似度为：%.2f%%"%result,file=file0)
