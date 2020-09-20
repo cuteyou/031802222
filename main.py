@@ -1,6 +1,5 @@
+#代码借鉴：https://blog.csdn.net/qq_42280510/article/details/102857696?biz_id=102&utm_term=class%20CosineSimilarityobject:&utm_medium=distribute.pc_search_result.none-task-blog-2
 # -*- coding: utf-8 -*-
-
-
 # 正则包
 
 import re
@@ -123,7 +122,8 @@ class CosineSimilarity(object):
 if __name__ == '__main__':
 #    f1 = sys.argv[1]
     f = open('D:\sim_0.8\orig_0.8_add.txt', "r", encoding="UTF-8")
-
+#    if f1.endwith('.txt')==False:
+#        print("输入错误！")
     content_x = f.read()
 
     f.close()
@@ -131,6 +131,8 @@ if __name__ == '__main__':
 #    g1 = sys.argv[2]
     g = open('D:\sim_0.8\orig_0.8_del.txt', "r", encoding="UTF-8")
     content_y = g.read()
+#    if g1.endwith('.txt')==False:
+#        print("输入错误！")
 
     g.close()
 
